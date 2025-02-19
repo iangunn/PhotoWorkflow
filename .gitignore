@@ -1,0 +1,41 @@
+# PowerShell specific
+*.ps1.test
+*.psm1.test
+*.psd1.test
+*.ps1.out
+*.psm1.out
+*.psd1.out
+
+# Module manifest
+*.psd1
+
+# PowerShell Studio files
+*.psprojs
+*.psproj
+*.TempPoint.*
+
+# Package management files
+packages/
+*.nupkg
+
+# VSCode settings
+.vscode/
+
+# Local configuration
+PhotoExif.config.json
+
+# PowerShell log files
+*.log
+
+# PowerShell transcript files
+transcript*.txt
+
+# Debug files
+*.dbg
+
+# Backup files
+*.bak
+*~
+
+# Temporary files
+*.tmp
