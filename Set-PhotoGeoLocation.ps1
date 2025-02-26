@@ -27,23 +27,45 @@ Get-ChildItem -Path $Directory -Filter "*.jp*g" -File | ForEach-Object {
     if ($dateTaken -match "\d{4}-\d{2}-\d{2}") {
         $year = $dateTaken.Substring(0, 4)
         $gpxFolder = Join-Path $GpxBaseDirectory $year
-        
-        if (Test-Path $gpxFolder) {
-            # Find all GPX files for this date
-            $gpxPattern = "$dateTaken*.gpx"
-            $gpxFiles = Get-ChildItem -Path $gpxFolder -Filter $gpxPattern
+
+        function Get-GpxDates {
+            param (
+                [string]$GpxFile
+            )
             
-            if ($gpxFiles.Count -gt 0) {
+            try {
+                [xml]$gpxContent = Get-Content $GpxFile
+                $timestamps = $gpxContent.gpx.trk.trkseg.trkpt.time
+                if ($timestamps) {
+                    $dates = $timestamps | ForEach-Object { 
+                        ([datetime]$_).ToString('yyyy-MM-dd')
+                    } | Select-Object -Unique
+                    return $dates
+                }
+            } catch {
+                Write-Host "⚠️ Error reading GPX file: $GpxFile" -ForegroundColor Yellow
+            }
+            return @()
+        }
+
+        if (Test-Path $gpxFolder) {
+            # Get all GPX files and check their content for matching dates
+            $matchingGpxFiles = Get-ChildItem -Path $gpxFolder -Filter "*.gpx" | Where-Object {
+                $gpxDates = Get-GpxDates $_.FullName
+                $gpxDates -contains $dateTaken
+            }
+
+            if ($matchingGpxFiles.Count -gt 0) {
                 # Create a list of -geotag arguments for exiftool
-                $geotagArgs = $gpxFiles | ForEach-Object { "-geotag `"$($_.FullName)`"" }
+                $geotagArgs = $matchingGpxFiles | ForEach-Object { "-geotag `"$($_.FullName)`"" }
                 
                 # Geotag the photo using all matching GPX files
                 $exifCommand = "exiftool -overwrite_original $($geotagArgs -join ' ') `"$photoFile`""
                 Invoke-Expression $exifCommand
                 
-                Write-Host "✔️ Geotagged using $(($gpxFiles | Select-Object -ExpandProperty Name) -join ', ')" -ForegroundColor Green
+                Write-Host "✔️ Geotagged using $(($matchingGpxFiles | Select-Object -ExpandProperty Name) -join ', ')" -ForegroundColor Green
             } else {
-                Write-Host "⚠️ No matching GPX files found for date: $dateTaken" -ForegroundColor Yellow
+                Write-Host "⚠️ No GPX files found containing tracks for date: $dateTaken" -ForegroundColor Yellow
             }
         } else {
             Write-Host "⚠️ No GPX folder found for year: $year" -ForegroundColor Yellow
