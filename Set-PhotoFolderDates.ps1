@@ -26,7 +26,7 @@ if ($firstPhoto) {
         Set-ItemProperty -Path $Directory -Name CreationTime -Value $date
 
         Write-Host "Folder: $(Split-Path $Directory -Leaf)" -ForegroundColor Green
-        Write-Host "Setting date to: $date (from $(Split-Path $firstPhoto.FullName -Leaf))" -ForegroundColor Green
+        Write-Host "Setting date to: $($date.ToString('yyyy-MM-dd')) (from $(Split-Path $firstPhoto.FullName -Leaf))" -ForegroundColor Green
         Write-Host "✔️ Successfully updated folder timestamp" -ForegroundColor Green
     } else {
         Write-Host "❌ No valid EXIF DateTimeOriginal found in $(Split-Path $firstPhoto.FullName -Leaf)" -ForegroundColor Yellow
