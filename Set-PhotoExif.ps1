@@ -29,7 +29,9 @@ try {
 # Build exiftool arguments
 $exifArgs = @(
     "-Artist=$($config.Artist)",
+    "-Creator=$($config.Artist)",
     "-Copyright=$($config.Copyright)",
+    "-XMP-tiff:Artist=$($config.Artist)",
     "-XMP-iptcCore:CreatorWorkTelephone=$($config.Phone)",
     "-XMP-iptcCore:CreatorWorkEmail=$($config.Email)",
     "-overwrite_original"
