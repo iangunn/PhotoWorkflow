@@ -22,19 +22,16 @@ function Install-WingetPackage {
         Write-Host "✅ Installed" -ForegroundColor Green
         Write-Host "   🔄 Checking for updates..." -ForegroundColor Cyan
         
-        # Check for updates
-        $updateCheck = winget upgrade --query $packageId
-        if ($updateCheck -match "No available upgrade found") {
+        # Try to upgrade
+        winget upgrade --id $packageId --accept-source-agreements 2>&1 | Out-Null
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "   ✅ Update successful!" -ForegroundColor Green
+        } elseif ($LASTEXITCODE -eq -1978335189) {
+            # This specific exit code means "No available upgrade found"
             Write-Host "   ✨ Already up to date!" -ForegroundColor Green
         } else {
-            Write-Host "   ⚠️ Update available" -ForegroundColor Yellow
-            Write-Host "   📥 Installing update..." -ForegroundColor Cyan
-            winget upgrade --id $packageId --accept-source-agreements
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "   ✅ Update successful!" -ForegroundColor Green
-            } else {
-                Write-Host "   ❌ Update failed" -ForegroundColor Red
-            }
+            Write-Host "   ❌ Update failed" -ForegroundColor Red
         }
     } else {
         Write-Host "❌ Not installed" -ForegroundColor Red
