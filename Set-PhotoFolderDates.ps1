@@ -16,14 +16,15 @@ Write-Host "`nProcessing folder: $(Split-Path $Directory -Leaf)" -ForegroundColo
 $firstPhoto = Get-ChildItem -Path $Directory -Filter "*.jp*g" -File | Select-Object -First 1
 
 if ($firstPhoto) {
-    # Get the EXIF DateTimeOriginal using ExifTool
-    $dateTaken = & exiftool -d "%Y-%m-%d %H:%M:%S" -DateTimeOriginal -S -s $firstPhoto.FullName
+    # Get the EXIF DateTimeOriginal using ExifTool (try multiple date fields)
+    $dateTaken = & exiftool -d "%Y-%m-%d %H:%M:%S" -DateTimeOriginal -CreateDate -FileModifyDate -S -s $firstPhoto.FullName | Select-Object -First 1
     
     if ($dateTaken -match "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}") {
         $date = [DateTime]::ParseExact($dateTaken, "yyyy-MM-dd HH:mm:ss", $null)
 
-        # Update folder's creation date
+        # Update folder's creation and modified dates
         Set-ItemProperty -Path $Directory -Name CreationTime -Value $date
+        Set-ItemProperty -Path $Directory -Name LastWriteTime -Value $date
 
         Write-Host "Folder: $(Split-Path $Directory -Leaf)" -ForegroundColor Green
         Write-Host "Setting date to: $($date.ToString('yyyy-MM-dd')) (from $(Split-Path $firstPhoto.FullName -Leaf))" -ForegroundColor Green

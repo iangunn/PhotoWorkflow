@@ -1,5 +1,6 @@
 param (
-    [string]$Directory
+    [string]$Directory,
+    [switch]$Recurse
 )
 
 # Validate that the directory exists
@@ -8,8 +9,10 @@ if (-Not (Test-Path $Directory)) {
     exit
 }
 
+Write-Host "`nProcessing directory: $(Split-Path $Directory -Leaf)" -ForegroundColor Cyan
+
 # Process all JPG and JPEG files in the directory
-Get-ChildItem -Path $Directory -Filter "*.jp*g" -File | ForEach-Object {
+Get-ChildItem -Path $Directory -Filter "*.jp*g" -File -Recurse:$Recurse | ForEach-Object {
     $file = $_.FullName
     Write-Host "`nProcessing file: $(Split-Path $file -Leaf)" -ForegroundColor Cyan
 
