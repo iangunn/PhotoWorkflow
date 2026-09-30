@@ -1,14 +1,15 @@
 param (
     [Parameter(Mandatory=$true)]
     [string]$Directory = "C:\TEMP\ToProcess",
-    [string]$GpxBaseDirectory = "C:\Users\$env:USERNAME\Dropbox\Maps\_Tracks\Garmin"
+    [string]$GpxBaseDirectory = "C:\Users\$env:USERNAME\Dropbox\Maps\_Tracks\Garmin",
+    [string]$GeoNamesUsername = $env:USERNAME
 )
 
 # Define the processing steps
 $processingSteps = @(
     @(0, "Update-Packages.ps1", "Update packages", ""),
     @(1, "Set-PhotoExif.ps1", "Set EXIF metadata", "-Directory `"$Directory`""),
-    @(2, "Set-PhotoGeoLocation.ps1", "Set location data", "-Directory `"$Directory`" -GpxBaseDirectory `"$GpxBaseDirectory`""),
+    @(2, "Set-PhotoGeoLocation.ps1", "Set location data", "-Directory `"$Directory`" -GpxBaseDirectory `"$GpxBaseDirectory`" -GeoNamesUsername `"$GeoNamesUsername`""),
     @(3, "Rename-PhotosByDate.ps1", "Rename files", "-Directory `"$Directory`""),
     @(4, "Optimize-Photos.ps1", "Optimize photos", "-Directory `"$Directory`""),
     @(5, "Set-PhotoFileDates.ps1", "Set file dates", "-Directory `"$Directory`""),
